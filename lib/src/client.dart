@@ -305,12 +305,12 @@ class EOSClient {
   /// serialize actions in a transaction
   Future<Transaction> _serializeActions(Transaction transaction) async {
     for (Action action in transaction.actions!) {
-      String account = action.account!;
-
-      Contract contract = await _getContract(account);
-
-      action.data =
-          _serializeActionData(contract, account, action.name!, action.data!);
+      if(action.data is Map) {
+        String account = action.account!;
+        Contract contract = await _getContract(account);
+        action.data =
+            _serializeActionData(contract, account, action.name!, action.data!);
+      }
     }
     return transaction;
   }
