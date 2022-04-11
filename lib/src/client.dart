@@ -256,14 +256,18 @@ class EOSClient {
       {bool broadcast = true,
       bool sign = true,
       int blocksBehind = 3,
-      int expireSecond = 180}) async {
+      int expireSecond = 180,
+      bool autoFill = true}) async {
     NodeInfo info = await this.getInfo();
-    Block refBlock =
-        await getBlock((info.headBlockNum! - blocksBehind).toString());
+    if(autoFill) {
+      Block refBlock =
+      await getBlock((info.headBlockNum! - blocksBehind).toString());
 
-    Transaction trx = await _fullFill(transaction, refBlock);
+      transaction = await _fullFill(transaction, refBlock);
+    }
+
     PushTransactionArgs pushTransactionArgs = await _pushTransactionArgs(
-        info.chainId!, transactionTypes['transaction']!, trx, sign);
+        info.chainId!, transactionTypes['transaction']!, transaction, sign);
 
     if (broadcast) {
       return this._post('/chain/push_transaction', {
