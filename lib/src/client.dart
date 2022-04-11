@@ -206,16 +206,9 @@ class EOSClient {
   /// Get required key by transaction from EOS blockchain
   Future<RequiredKeys> getRequiredKeys(
       Transaction transaction, List<String> availableKeys) async {
-    NodeInfo info = await getInfo();
-    Block refBlock = await getBlock((info.headBlockNum).toString());
-    Transaction trx = await _fullFill(transaction, refBlock);
-    trx = await _serializeActions(trx);
-
-    // raw abi to json
-//      AbiResp abiResp = await getRawAbi(account);
-//    print(abiResp.abi);
+    transaction = await _serializeActions(transaction);
     return this._post('/chain/get_required_keys', {
-      'transaction': trx,
+      'transaction': transaction,
       'available_keys': availableKeys
     }).then((requiredKeys) {
       return RequiredKeys.fromJson(requiredKeys);
